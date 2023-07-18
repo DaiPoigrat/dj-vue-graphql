@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/vue@3"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+
+        <div v-bind:class="{ opacity50: isOpen,  opacity100: !isOpen}">
+            <div class="row">
+                <div class="col" v-for="(market, key) in marketList">
+                    <span class="name"> 
+                        [[ market ]]
+                        <span class="cross" @click="deleteMarket(market)">X</span>
+                    </span>
+                    <hr class="name-hr">
+                    <div class="block" v-for="(wishL, key) in wishList">
+                        <div class="item" v-for="wish in wishL" v-if="key === market">
+                            <div :key="wish.id">
+                                <span class="plus" @click="editWish(wish, market)">+</span>
+                                [[ wish.name ]]
+                                <span class="cross" @click="deleteWish(wish, market)">--</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="add-btn" @click="openModal('wish', market)" id="add-wish">Add</button>
+                </div>
+            </div>
+
+            <div class="row">
+                <button class="add-btn" @click="openModal('market')">Add market</button>
+            </div>
+        </div>
+
+        <div v-if="isOpen">
+            <div v-if="addWish_" class="modal">
+                <label for="change" style="margin-bottom: 20px;"> Add to [[ changedMarket ]]</label>
+                <input v-model="wishName" id="change" class="change-input">
+                <button class="add-btn" @click="addWish(changedMarket)">Send</button>
+            </div>
+            <div v-if="addMarket_" class="modal">
+                <label for="change" style="margin-bottom: 20px;"> Add new market</label>
+                <input v-model="marketName" id="change" class="change-input">
+                <button class="add-btn" @click="addMarket()">Send</button>
+            </div>
+        </div>
+
+    </div>
+
+
+    <script src="{% static 'js/index.js'%}"></script>
+</body>
+</html>
