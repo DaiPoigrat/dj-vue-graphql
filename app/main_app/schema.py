@@ -11,18 +11,25 @@ class MarketType(DjangoObjectType):
         fields = ('id', 'name')
 
 
+# в return у матаций можно поместить все, что угодно
+# но в результате придет только то, что указано в запросе
+# если внизу в return есть парамерт text, то он вернется, только если указат ео явно в запросе
+# это логично, но я это понял не сразу
 class CreateMarket(graphene.Mutation):
     class Arguments:
         name = graphene.String()
 
     market = graphene.Field(MarketType)
+    text = graphene.String()
 
+    @staticmethod
     def mutate(root, info, name):
         try:
             market = Market(name=name)
             market.save()
 
-            return CreateMarket(market=market)
+
+            return CreateMarket(market=market, text='123')
         except Exception as e:
             print(f"Create Market {e=}")
             return None
@@ -34,13 +41,15 @@ class DeleteMarket(graphene.Mutation):
 
     market = graphene.Field(MarketType)
     ok = graphene.Boolean()
+    text = graphene.String()
 
+    @staticmethod
     def mutate(root, info, name):
         try:
             market = Market.objects.get(name=name)
             market.delete()
 
-            return DeleteMarket(ok=True)
+            return DeleteMarket(ok=True, text='AAAAAAAAAA', market=market)
         except Exception as e:
             print(f"Delete Market {e=}")
             return None
@@ -54,6 +63,7 @@ class EditMarket(graphene.Mutation):
     market = graphene.Field(MarketType)
     ok = graphene.Boolean()
 
+    @staticmethod
     def mutate(root, info, name, new_name):
         try:
             market = Market.objects.get(name=name)
@@ -81,6 +91,7 @@ class CreateWish(graphene.Mutation):
     wish = graphene.Field(WishListType)
 
     # можно искать по fk
+    @staticmethod
     def mutate(root, info, name, market_name):
         try:
             print(market_name)
@@ -103,6 +114,7 @@ class DeleteWish(graphene.Mutation):
     ok = graphene.Boolean()
 
     # можно искать по pk(id)
+    @staticmethod
     def mutate(root, info, id):
         try:
             wish = WishList.objects.get(pk=id)
@@ -122,6 +134,7 @@ class EditWish(graphene.Mutation):
     wish = graphene.Field(WishListType)
     ok = graphene.Boolean()
 
+    @staticmethod
     def mutate(root, info, id, new_name):
         try:
             wish = WishList.objects.get(pk=id)
@@ -141,18 +154,22 @@ class Query(graphene.ObjectType):
     wish_list = graphene.List(WishListType)
     wish_list_by_market_name = graphene.List(WishListType, market_name=graphene.String(required=False))
 
+    @staticmethod
     def resolve_market_list(root, info):
         return Market.objects.all()
 
+    @staticmethod
     def resolve_market_by_name(root, info, name=None):
         try:
             return Market.objects.get(name=name)
         except:
             return None
 
+    @staticmethod
     def resolve_wish_list(root, info):
         return WishList.objects.all()
 
+    @staticmethod
     def resolve_wish_list_by_market_name(root, info, market_name=None):
         try:
             return WishList.objects.filter(market=market_name)
